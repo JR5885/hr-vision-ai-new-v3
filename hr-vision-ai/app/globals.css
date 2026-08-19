@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #f8f9fa;
+  color: #202124;
+}
+
+::selection {
+  background-color: #1a73e8;
+  color: #ffffff;
+}
+
+/* Google-style 4-color rainbow bar, used for loading states */
+.bg-rainbow {
+  background-image: linear-gradient(
+    90deg,
+    #1a73e8 0%,
+    #ea4335 25%,
+    #fbbc04 50%,
+    #34a853 75%,
+    #1a73e8 100%
+  );
+}
+
+/* Material ripple hover feedback for buttons */
+.ripple-btn {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.ripple-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 150ms ease;
+  pointer-events: none;
+}
+
+.ripple-btn:hover::after {
+  opacity: 0.08;
+}
+
+.ripple-btn:active::after {
+  opacity: 0.16;
+}
+
+/* thin custom scrollbar for result cards */
+.thin-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.thin-scroll::-webkit-scrollbar-thumb {
+  background-color: #dadce0;
+  border-radius: 999px;
+}
