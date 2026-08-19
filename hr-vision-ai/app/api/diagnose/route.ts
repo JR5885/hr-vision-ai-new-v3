@@ -1,11 +1,9 @@
-import { GoogleGenAI } from "@google/genai";
-import { SYSTEM_PROMPT, buildUserPrompt } from "@/lib/systemPrompt";
-
 export const runtime = "nodejs";
 
-// Advanced-reasoning model — good fit for a long, structured, bilingual
-// strategic analysis. Swap for a newer/faster Gemini model id as needed.
-const MODEL = "gemini-2.5-pro";
+// 使用最新官方模型名稱
+const MODEL = "gemini-3.6-flash";
+const SYSTEM_PROMPT =
+  "你是一位專業的 HR 戰略顧問，請針對使用者的組織挑戰提供專業、可落地的診斷與行動方案。";
 
 export async function POST(req: Request) {
   let body: { message?: string; domains?: string[] };
@@ -16,52 +14,56 @@ export async function POST(req: Request) {
   }
 
   const message = (body.message ?? "").trim();
-  const domains = Array.isArray(body.domains) ? body.domains : [];
-
   if (!message) {
     return new Response("Missing `message`", { status: 400 });
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return new Response(
-      "Server is missing GEMINI_API_KEY. Set it in .env.local.",
-      { status: 500 }
-    );
+    return new Response("Server is missing GEMINI_API_KEY", { status: 500 });
   }
 
-  const ai = new GoogleGenAI({ apiKey });
-  const encoder = new TextEncoder();
-
-  const stream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      try {
-        const response = await ai.models.generateContentStream({
-          model: MODEL,
-          contents: buildUserPrompt(message, domains),
-          config: {
-            systemInstruction: SYSTEM_PROMPT,
-            maxOutputTokens: 4096,
-          },
-        });
-
-        for await (const chunk of response) {
-          const text = chunk.text;
-          if (text) controller.enqueue(encoder.encode(text));
-        }
-
-        controller.close();
-      } catch (err) {
-        controller.error(err);
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  text: `${SYSTEM_PROMPT}\n\n請分析以下 HR 議題並提供診斷建議：\n${message}`,
+                },
+              ],
+            },
+          ],
+        }),
       }
-    },
-  });
+    );
 
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "no-cache, no-transform",
-      "X-Content-Type-Options": "nosniff",
-    },
-  });
+    if (!response.ok) {
+      const errorText = await response.text();
+      return new Response(`Gemini API Error: ${errorText}`, {
+        status: response.status,
+      });
+    }
+
+    const data = await response.json();
+    const replyText =
+      data.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "未能取得有效診斷建議。";
+
+    return new Response(replyText, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+      },
+    });
+  } catch (err: any) {
+    return new Response(`Error: ${err.message}`, { status: 500 });
+  }
 }
