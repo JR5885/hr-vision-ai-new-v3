@@ -1,8 +1,0 @@
-{
-  "routes": [
-    {
-      "src": "/_next/static/(.*)\\.map$",
-      "status": 404
-    }
-  ]
-}
