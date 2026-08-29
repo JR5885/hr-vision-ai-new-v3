@@ -5,17 +5,15 @@ import React, { useState, useEffect, useRef } from 'react';
 export default function Home() {
   const [quota, setQuota] = useState(3);
   const [customKey, setCustomKey] = useState('');
-  const [selectedExperience, setSelectedExperience] = useState('mid'); // junior (1-3y), mid (3-6y), senior (6y+)
+  const [selectedExperience, setSelectedExperience] = useState('mid');
   const [inputMessage, setInputMessage] = useState('');
   const [sandboxInput, setSandboxInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showKeyModal, setShowKeyModal] = useState(false);
   
-  // 預約諮詢表單
   const [formData, setFormData] = useState({ name: '', email: '', company: '', challenge: '' });
 
-  // 多輪對話歷史紀錄
   const [messages, setMessages] = useState([
     {
       role: 'ai',
@@ -24,9 +22,8 @@ export default function Home() {
   ]);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const DEFAULT_KEY = "YOUR_FALLBACK_FREE_GEMINI_KEY"; // 請替換為您的免費 Gemini API Key
+  const DEFAULT_KEY = "YOUR_FALLBACK_FREE_GEMINI_KEY";
 
-  // 快捷標籤清單
   const quickTags = [
     { icon: '🧭', title: '人才戰略配置規劃' },
     { icon: '🌐', title: '全球員工關係與合規' },
@@ -39,7 +36,6 @@ export default function Home() {
     { icon: '🎯', title: 'OKR 和季獎金設計' }
   ];
 
-  // 14 天修煉模組清單
   const curriculumDays = [
     "D1 業務痛點解構", "D2 六盒組織診斷", "D3 動態人才盤點", "D4 九宮格校準會",
     "D5 關鍵崗位繼任", "D6 激勵與績效改進", "D7 OKR 與業務對齊", "D8 跨部門衝突協商",
@@ -47,7 +43,6 @@ export default function Home() {
     "D13 戰略提案 Deck", "D14 落地執行閉環"
   ];
 
-  // 配額與本地紀錄初始化（設置為 3 次）
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
     const storedDate = localStorage.getItem('hr_quota_date');
@@ -93,7 +88,6 @@ export default function Home() {
     const newMessages = [...messages, { role: 'user', text: textToSend.trim() }];
     setMessages(newMessages);
 
-    // 自動同步填入預約諮詢表單
     setFormData(prev => ({ ...prev, challenge: `【AI 診斷議題】\n${textToSend.trim()}` }));
 
     if (quota < 999) {
@@ -183,13 +177,13 @@ export default function Home() {
       });
 
       if (response.ok) {
-        alert(`預約已成功送出！\n\n系統已將通知發送至 MSHAPPYJ@GMAIL.COM，我們將盡快與您聯繫。`);
+        alert(`預約已成功送出！\n\n系統已將通知發送至 mshappyj@gmail.com，我們將盡快與您聯繫。`);
         setFormData({ name: '', email: '', company: '', challenge: '' });
       } else {
-        window.location.href = `mailto:MSHAPPYJ@GMAIL.COM?subject=${emailSubject}&body=${emailBody}`;
+        window.location.href = `mailto:mshappyj@gmail.com?subject=${emailSubject}&body=${emailBody}`;
       }
     } catch {
-      window.location.href = `mailto:MSHAPPYJ@GMAIL.COM?subject=${emailSubject}&body=${emailBody}`;
+      window.location.href = `mailto:mshappyj@gmail.com?subject=${emailSubject}&body=${emailBody}`;
     } finally {
       setIsSubmitting(false);
     }
@@ -197,8 +191,6 @@ export default function Home() {
 
   return (
     <div style={{ backgroundColor: '#fcfcfd', minHeight: '100vh', color: '#1e293b', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-      
-      {/* 頂部導覽列 */}
       <header style={{ background: '#ffffff', borderBottom: '1px solid #f1f5f9', padding: '0.85rem 2rem', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -226,7 +218,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero 區塊 */}
       <section style={{ textAlign: 'center', padding: '3.5rem 1rem 2rem', maxWidth: '850px', margin: '0 auto' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '0.35rem 0.9rem', borderRadius: '20px', fontSize: '0.8rem', color: '#475569', marginBottom: '1.25rem' }}>
           <span style={{ color: '#16a34a' }}>●</span> Powered by Google Gemini
@@ -250,7 +241,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 14 天修煉進度地圖 */}
       <div style={{ maxWidth: '1240px', margin: '0 auto 2rem', padding: '0 1rem' }}>
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', overflowX: 'auto' }}>
           <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap' }}>🎯 14天修煉地圖：</span>
@@ -269,20 +259,14 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 核心雙欄：左側沙盒與對話 / 右側預約諮詢表單 */}
       <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 1rem', display: 'grid', gridTemplateColumns: '1fr 380px', gap: '2rem' }}>
-        
-        {/* 左側主互動區 */}
         <main style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          
-          {/* 動態 AI HR 戰略診斷沙盒 */}
           <section id="diagnostics" style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '2.5rem 2rem', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
             <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.5rem' }}>動態 AI HR 戰略診斷沙盒</h2>
             <p style={{ color: '#64748b', fontSize: '0.95rem', marginBottom: '1.5rem' }}>
               描述您正面臨的組織挑戰，AI 將即時歸類、剖析並產出可落地的行動方案。
             </p>
 
-            {/* HR 年資客製化切換器 */}
             <div style={{ display: 'inline-flex', background: '#f1f5f9', padding: '0.25rem', borderRadius: '8px', marginBottom: '1.5rem', gap: '0.25rem' }}>
               <button 
                 onClick={() => setSelectedExperience('junior')}
@@ -301,7 +285,6 @@ export default function Home() {
               </button>
             </div>
 
-            {/* 輸入搜尋欄 */}
             <div style={{ display: 'flex', maxWidth: '720px', margin: '0 auto', background: '#f8fafc', borderRadius: '50px', padding: '0.4rem 0.5rem 0.4rem 1.25rem', border: '1px solid #e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
               <span style={{ fontSize: '1.1rem', marginRight: '0.5rem', display: 'flex', alignItems: 'center' }}>🔍</span>
               <input 
@@ -320,7 +303,6 @@ export default function Home() {
               </button>
             </div>
 
-            {/* 快速問題標籤 */}
             <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '1.5rem 0 0.75rem' }}>點選下方標籤，快速帶入範例問題</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem', maxWidth: '750px', margin: '0 auto' }}>
               {quickTags.map((item, idx) => (
@@ -337,7 +319,6 @@ export default function Home() {
             </div>
           </section>
 
-          {/* 連續對話結果呈現區 */}
           <section style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', height: '480px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div style={{ flex: 1, padding: '1.25rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', background: '#f8fafc' }}>
               {messages.map((m, idx) => (
@@ -377,7 +358,6 @@ export default function Home() {
             </div>
           </section>
 
-          {/* AdSense 合規文章庫 */}
           <article style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '2rem', marginTop: '1rem' }}>
             <h2 style={{ fontSize: '1.35rem', color: '#0f172a', marginBottom: '0.75rem' }}>HRBP 14 天段位躍升方法論架構</h2>
             <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.6, marginBottom: '0.75rem' }}>
@@ -391,9 +371,7 @@ export default function Home() {
           </article>
         </main>
 
-        {/* 右側側邊欄：預約診斷諮詢表單（修復排版溢出） */}
         <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          
           <div id="booking" style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '1.75rem', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.03)', position: 'sticky', top: '5.5rem' }}>
             <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.35rem' }}>預約診斷諮詢</h2>
             <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem', lineHeight: 1.5 }}>
@@ -441,7 +419,6 @@ export default function Home() {
         </aside>
       </div>
 
-      {/* BYOK 自備 Key 彈窗 Modal */}
       {showKeyModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: '#fff', borderRadius: '12px', padding: '1.5rem', width: '90%', maxWidth: '420px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
@@ -467,14 +444,13 @@ export default function Home() {
         </div>
       )}
 
-      {/* 頁尾 */}
       <footer style={{ borderTop: '1px solid #e2e8f0', marginTop: '4rem', padding: '2rem 1rem', fontSize: '0.85rem', color: '#94a3b8', textAlign: 'center', background: '#fff' }}>
         <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div>&copy; 2026 HR Vision AI. All rights reserved.</div>
           <div style={{ display: 'flex', gap: '1.25rem' }}>
             <a href="#diagnostics" style={{ color: '#64748b', textDecoration: 'none' }}>AI 診斷</a>
             <a href="#booking" style={{ color: '#64748b', textDecoration: 'none' }}>預約諮詢</a>
-            <a href="mailto:MSHAPPYJ@GMAIL.COM" style={{ color: '#64748b', textDecoration: 'none' }}>聯絡我們</a>
+            <a href="mailto:mshappyj@gmail.com" style={{ color: '#64748b', textDecoration: 'none' }}>聯絡我們</a>
           </div>
         </div>
       </footer>
